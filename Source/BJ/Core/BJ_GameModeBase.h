@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "BJGameModeBase.generated.h"
+#include "BJ_GameModeBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BJ_API ABJGameModeBase : public AGameModeBase
+class BJ_API ABJ_GameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
