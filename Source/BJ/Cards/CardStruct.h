@@ -10,7 +10,8 @@ UENUM(BlueprintType)
 enum struct ERank : uint8
 {
 	NONE = 0,
-	N2 = 2,
+	Ace = 1, // Туз
+	N2,
 	N3,
 	N4,
 	N5,
@@ -22,7 +23,6 @@ enum struct ERank : uint8
 	Jack = 10,  // Валет
 	Queen = 10, // Дама
 	King = 10,  // Король
-	Ace = 11,   // Туз
 };
 
 // Масть карты

@@ -1,7 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
+// Base:
 #include "Deck.h"
+
+// Interaction:
 #include "Card.h"
 
 // Sets default values
