@@ -17,30 +17,28 @@ ACard::ACard()
 
 	/* ---   Visualization   --- */
 
-	CardMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Card"));
-	RootComponent = CardMesh;
-	CardMesh->SetRelativeScale3D(FVector(0.01f, 0.88f, 1.26f));
+	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
+	RootComponent = SceneComponent;
+
+	CardMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Card Mesh"));
+	CardMesh->SetupAttachment(RootComponent);
+	CardMesh->SetRelativeScale3D(FVector(1.26f, 0.88f, 0.01f));
 
 	RankText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Rank"));
 	RankText->SetupAttachment(RootComponent);
-	RankText->SetRelativeLocation(FVector(100.f, 0.f, 20.f));
+	RankText->SetRelativeLocation(FVector(-20.f, 0.f, 1.f));
+	RankText->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
+	RankText->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
+	RankText->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+	RankText->SetTextRenderColor(FColor::Red);
 
 	SuitText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Suit"));
 	SuitText->SetupAttachment(RootComponent);
-	SuitText->SetRelativeLocation(FVector(100.f, 0.f, -20.f));
-
-	// Локальная меременная установки цвета
-	FColor lNewColor = FColor::Red;
-
-	// Установка цвета по масти
-	if (CardData.Suit == ESuit::Clubs
-		|| CardData.Suit == ESuit::Spades)
-	{
-		lNewColor = FColor::Black;
-	}
-
-	RankText->SetTextRenderColor(lNewColor);
-	SuitText->SetTextRenderColor(lNewColor);
+	SuitText->SetRelativeLocation(FVector(20.f, 0.f, 1.f));
+	SuitText->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
+	SuitText->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
+	SuitText->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
+	SuitText->SetTextRenderColor(FColor::Red);
 	//-------------------------------------------
 }
 
@@ -59,11 +57,17 @@ void ACard::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Установка цвета по масти
+	if (CardData.Suit == ESuit::Clubs
+		|| CardData.Suit == ESuit::Spades)
+	{
+		RankText->SetTextRenderColor(FColor::Black);
+		SuitText->SetTextRenderColor(FColor::Black);
+	}
 }
 
 void ACard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 //--------------------------------------------------------------------------------------

@@ -47,6 +47,9 @@ public:
 
 	/* ---   Visualization   --- */
 
+	// Корневой компонент
+	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* SceneComponent = nullptr;
 	// Меш визуализации карты
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* CardMesh = nullptr;

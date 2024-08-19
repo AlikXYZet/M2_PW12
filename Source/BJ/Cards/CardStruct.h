@@ -20,9 +20,9 @@ enum struct ERank : uint8
 	N8,
 	N9,
 	N10,
-	Jack = 10,  // Валет
-	Queen = 10, // Дама
-	King = 10,  // Король
+	Jack,  // Валет
+	Queen, // Дама
+	King,  // Король
 };
 
 // Масть карты
