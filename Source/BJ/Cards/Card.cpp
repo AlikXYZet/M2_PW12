@@ -17,16 +17,17 @@ ACard::ACard()
 
 	/* ---   Visualization   --- */
 
-	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-	RootComponent = SceneComponent;
+	// Корневой компонент
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
 	CardMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Card Mesh"));
 	CardMesh->SetupAttachment(RootComponent);
+	CardMesh->SetRelativeLocation(FVector(0.f, 0.f, 0.5f));
 	CardMesh->SetRelativeScale3D(FVector(1.26f, 0.88f, 0.01f));
 
 	RankText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Rank"));
 	RankText->SetupAttachment(RootComponent);
-	RankText->SetRelativeLocation(FVector(-20.f, 0.f, 1.f));
+	RankText->SetRelativeLocation(FVector(-20.f, 0.f, 1.5f));
 	RankText->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	RankText->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 	RankText->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
@@ -34,7 +35,7 @@ ACard::ACard()
 
 	SuitText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Suit"));
 	SuitText->SetupAttachment(RootComponent);
-	SuitText->SetRelativeLocation(FVector(20.f, 0.f, 1.f));
+	SuitText->SetRelativeLocation(FVector(20.f, 0.f, 1.5f));
 	SuitText->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	SuitText->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 	SuitText->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);

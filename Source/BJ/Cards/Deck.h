@@ -1,11 +1,16 @@
 ﻿#pragma once
 
+// Base:
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+// Interaction:
 #include "CardStruct.h"
 
+// Generated:
 #include "Deck.generated.h"
+
+
 
 UCLASS()
 class BJ_API ADeck : public AActor
@@ -37,9 +42,6 @@ public:
 
 	/* ---   Visualization   --- */
 
-	// Корневой компонент
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USceneComponent* SceneComponent = nullptr;
 	// Меш визуализации колоды
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* DeckMesh = nullptr;

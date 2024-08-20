@@ -19,16 +19,17 @@ ADeck::ADeck()
 
 	/* ---   Visualization   --- */
 
-	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-	RootComponent = SceneComponent;
+	// Корневой компонент
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
 	DeckMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Deck Mesh"));
 	DeckMesh->SetupAttachment(RootComponent);
+	DeckMesh->SetRelativeLocation(FVector(0.f, 0.f, 26.f));
 	DeckMesh->SetRelativeScale3D(FVector(1.26f, 0.88f, 0.52f));
 
 	CardsNumberText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Cards Number"));
 	CardsNumberText->SetupAttachment(RootComponent);
-	CardsNumberText->SetRelativeLocation(FVector(0.f, 0.f, 27.f));
+	CardsNumberText->SetRelativeLocation(FVector(0.f, 0.f, 53.f));
 	CardsNumberText->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	CardsNumberText->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 	CardsNumberText->SetVerticalAlignment(EVerticalTextAligment::EVRTA_TextCenter);
