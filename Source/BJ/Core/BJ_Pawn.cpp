@@ -87,10 +87,34 @@ void ABJ_Pawn::PossessedBy(AController* NewController)
 	{
 		lCurrentPCTable->InitWidgetForTable(this);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABJ_Pawn::PossessedBy : NewController is NOT ABJ_PlayerController"));
+	}
 }
 
 void ABJ_Pawn::UnPossessed()
 {
 	Super::UnPossessed();
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Interaction from Widget   --- */
+
+void ABJ_Pawn::CommandToHit()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToHit"));
+}
+
+void ABJ_Pawn::CommandToStand()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToStand"));
+}
+
+void ABJ_Pawn::CommandToSurrender()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToSurrender"));
 }
 //--------------------------------------------------------------------------------------

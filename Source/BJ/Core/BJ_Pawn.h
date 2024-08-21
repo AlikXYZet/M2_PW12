@@ -57,17 +57,17 @@ public:
 
 	/* ---   Visualization   --- */
 
-	// Меш визуализации стола
+	/** Меш визуализации стола */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* TableMesh = nullptr;
-	// Колода карт
+	/** Колода карт */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UChildActorComponent* DeckActor;
 
-	// Точка местоположения карт Крупье
+	/** Точка местоположения карт Крупье */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* CroupierCardsLocationPoint = nullptr;
-	// Точка местоположения карт Игрока
+	/** Точка местоположения карт Игрока */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* PlayerCardsLocationPoint = nullptr;
 	//-------------------------------------------
@@ -75,7 +75,30 @@ public:
 
 
 	/* ---   Camera   --- */
+
+	// 
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera = nullptr;
+	//-------------------------------------------
+
+
+
+	/* ---   Interaction from Widget   --- */
+
+	/** Взять карту */
+	void CommandToHit();
+
+	/** Не брать карту */
+	void CommandToStand();
+
+	/** Разбить руку на две (только если есть две карты и они совпали по номиналу) */
+	//void CommandToSplit();
+
+	/** Удвоить ставку (после этого можно получить только одну карту) */
+	//void CommandToDouble();
+
+	/** Сдаться (завершает раунд с проигрышем) */
+	void CommandToSurrender();
+
 	//-------------------------------------------
 };

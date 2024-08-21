@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 // Base:
 #include "CoreMinimal.h"
@@ -29,12 +29,8 @@ public:
 	/* ---   Initialization   --- */
 
 	/**
-	* Event to start initialization of the Table Widget
-	* @param CurrentTable - A pointer to the current Table for interaction in Widget
-	* 
-	* @note Ru:
-	* Event для запуска инициализации Widget стола
-	* param CurrentTable - Указатель на текущий Cтол для взаимодействия в Widget
+	* Event РґР»СЏ Р·Р°РїСѓСЃРєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Widget СЃС‚РѕР»Р°
+	* @param CurrentTable - РЈРєР°Р·Р°С‚РµР»СЊ РЅР° С‚РµРєСѓС‰РёР№ CС‚РѕР» РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ РІ Widget
 	*/
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "InitWidgetForTable"))
 	void InitWidgetForTable(class ABJ_Pawn* CurrentTable);
