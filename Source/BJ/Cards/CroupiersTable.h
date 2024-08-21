@@ -40,9 +40,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
+	// Вызывается для привязки функциональности к входным данным
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/**
+	* Вызывается, когда эта пешка захвачена. Вызывается только на сервере (или в автономном режиме)
+	* @param NewController - Контроллер, владеющий этой пешкой
+	*/
+	virtual void PossessedBy(AController* NewController) override;
+
+	/** Вызывается, когда Контроллер больше не владеет данной Пешкой. */
+	virtual void UnPossessed() override;
 	//-------------------------------------------
 
 

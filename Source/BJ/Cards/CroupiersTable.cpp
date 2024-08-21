@@ -3,6 +3,9 @@
 // Base:
 #include "CroupiersTable.h"
 
+// Interaction:
+#include "BJ/Core/BJ_PlayerController_Table.h"
+
 
 
 /* ---   Constructors   --- */
@@ -15,8 +18,9 @@ ACroupiersTable::ACroupiersTable()
 
 	// Автоподхват игрока
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	// Warning: Данный способ дважды ввызывает PossessedBy(*)
 
-
+	
 
 	/* ---   Visualization   --- */
 
@@ -68,9 +72,25 @@ void ACroupiersTable::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
 void ACroupiersTable::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void ACroupiersTable::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	ABJ_PlayerController_Table* lCurrentPCTable = Cast<ABJ_PlayerController_Table>(NewController);
+
+	if (lCurrentPCTable)
+	{
+		lCurrentPCTable->InitWidgetForTable(this);
+	}
+}
+
+void ACroupiersTable::UnPossessed()
+{
+	Super::UnPossessed();
 }
 //--------------------------------------------------------------------------------------
