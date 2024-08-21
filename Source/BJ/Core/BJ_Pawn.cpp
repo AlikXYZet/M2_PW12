@@ -1,17 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 // Base:
-#include "CroupiersTable.h"
+#include "BJ_Pawn.h"
 
 // Interaction:
-#include "BJ/Core/BJ_PlayerController_Table.h"
+#include "BJ_PlayerController.h"
 
 
 
 /* ---   Constructors   --- */
 
 // Sets default values
-ACroupiersTable::ACroupiersTable()
+ABJ_Pawn::ABJ_Pawn()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false; // Предварительно
@@ -61,27 +61,27 @@ ACroupiersTable::ACroupiersTable()
 /* ---   Base   --- */
 
 // Called when the game starts or when spawned
-void ACroupiersTable::BeginPlay()
+void ABJ_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
 // Called every frame
-void ACroupiersTable::Tick(float DeltaTime)
+void ABJ_Pawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void ACroupiersTable::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ABJ_Pawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void ACroupiersTable::PossessedBy(AController* NewController)
+void ABJ_Pawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	ABJ_PlayerController_Table* lCurrentPCTable = Cast<ABJ_PlayerController_Table>(NewController);
+	ABJ_PlayerController* lCurrentPCTable = Cast<ABJ_PlayerController>(NewController);
 
 	if (lCurrentPCTable)
 	{
@@ -89,7 +89,7 @@ void ACroupiersTable::PossessedBy(AController* NewController)
 	}
 }
 
-void ACroupiersTable::UnPossessed()
+void ABJ_Pawn::UnPossessed()
 {
 	Super::UnPossessed();
 }

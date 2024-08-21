@@ -9,15 +9,15 @@
 #include "Camera/CameraComponent.h"
 
 // Interaction:
-#include "Deck.h"
+#include "BJ/Cards/Deck.h"
 
 // Generated:
-#include "CroupiersTable.generated.h"
+#include "BJ_Pawn.generated.h"
 
 
 
 UCLASS()
-class BJ_API ACroupiersTable : public APawn
+class BJ_API ABJ_Pawn : public APawn
 {
 	GENERATED_BODY()
 
@@ -25,7 +25,7 @@ public:
 	/* ---   Constructors   --- */
 
 	// Sets default values for this pawn's properties
-	ACroupiersTable();
+	ABJ_Pawn();
 	//-------------------------------------------
 
 

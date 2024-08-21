@@ -5,13 +5,13 @@
 #include "GameFramework/PlayerController.h"
 
 // Generated:
-#include "BJ_PlayerController_Table.generated.h"
+#include "BJ_PlayerController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BJ_API ABJ_PlayerController_Table : public APlayerController
+class BJ_API ABJ_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
@@ -37,6 +37,6 @@ public:
 	* param CurrentTable - ”казатель на текущий Cтол дл€ взаимодействи€ в Widget
 	*/
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "InitWidgetForTable"))
-	void InitWidgetForTable(ACroupiersTable* CurrentTable);
+	void InitWidgetForTable(class ABJ_Pawn* CurrentTable);
 	//-------------------------------------------
 };
