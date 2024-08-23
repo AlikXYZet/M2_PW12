@@ -3,9 +3,13 @@
 // Base:
 #include "Deck.h"
 
+// UE:
+#include "Kismet/KismetSystemLibrary.h"
+
 // Interaction:
 #include "Card.h"
 #include "BJ/Tools/MyRandom.h"
+
 
 
 /* ---   Constructors   --- */
@@ -48,6 +52,12 @@ void ADeck::BeginPlay()
 	Super::BeginPlay();
 
 	/* ---   CardData   --- */
+
+	if (!CardType.Get())
+	{
+		UE_LOG(LogTemp, Error, TEXT("ADeck %s : CardType is NOT specified"), *GetNameSafe(this));
+	}
+
 	Reset();
 	//-------------------------------------------
 }
@@ -79,6 +89,7 @@ void ADeck::Reset()
 		}
 	}
 
+	ClearOfCards();
 	UpdateData();
 	Shuffle();
 }
@@ -88,22 +99,34 @@ void ADeck::UpdateData()
 	CardsNumberText->SetText(FString::Printf(TEXT("%d"), GetNumOfCards()));
 }
 
-bool ADeck::Shuffle()
+void ADeck::Shuffle()
 {
 	for (int i = AllCardsType.Num() - 1; i > 0; --i)
 	{
 		// Поменять местами i и random [0, i-1]
 		AllCardsType.Swap(i, GetRandom(0, i - 1));
 	}
-
-	return true;
 }
 
-FCardData ADeck::TakeUpperCard()
+void ADeck::ClearOfCards()
+{
+	for (ACard* pCard : CardsPlayed)
+	{
+		pCard->Destroy();
+	}
+}
+
+FCardData ADeck::TakeUpperCard(const class USceneComponent* iPoint)
 {
 	FCardData lResult = AllCardsType.Pop(false);
 
 	UpdateData();
+
+	ACard* pNewCard = GetWorld()->SpawnActor<ACard>(CardType.Get(), GetActorLocation(), GetActorRotation());
+
+	CardsPlayed.Add(pNewCard);
+
+	//UKismetSystemLibrary::MoveComponentTo();
 
 	return lResult;
 }

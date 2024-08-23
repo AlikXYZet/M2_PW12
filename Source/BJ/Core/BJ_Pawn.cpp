@@ -5,6 +5,8 @@
 
 // Interaction:
 #include "BJ_PlayerController.h"
+#include "BJ/Cards/Deck.h"
+#include "BJ_UserWidget.h"
 
 
 
@@ -20,7 +22,7 @@ ABJ_Pawn::ABJ_Pawn()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	// Warning: Данный способ дважды ввызывает PossessedBy(*)
 
-	
+
 
 	/* ---   Visualization   --- */
 
@@ -64,6 +66,13 @@ ABJ_Pawn::ABJ_Pawn()
 void ABJ_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Проверка на наличие корректной Колоды
+	pDeck = Cast<ADeck>(DeckActor->GetChildActor());
+	if (!pDeck)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABJ_Pawn %s : DeckActor is NOT ADeck"), *GetNameSafe(this));
+	}
 }
 
 // Called every frame
@@ -83,6 +92,7 @@ void ABJ_Pawn::PossessedBy(AController* NewController)
 
 	ABJ_PlayerController* lCurrentPCTable = Cast<ABJ_PlayerController>(NewController);
 
+	// Инициализация Виджета стола при подключении игрока к пешке
 	if (lCurrentPCTable)
 	{
 		lCurrentPCTable->InitWidgetForTable(this);
@@ -116,5 +126,113 @@ void ABJ_Pawn::CommandToStand()
 void ABJ_Pawn::CommandToSurrender()
 {
 	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToSurrender"));
+}
+
+void ABJ_Pawn::InitTableForWidget(UBJ_UserWidget* iCurrentUserWidget)
+{
+	pCurrentUserWidget = iCurrentUserWidget;
+
+	if (pDeck && pCurrentUserWidget)
+	{
+		StartRound();
+	}
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Actions of Croupier   --- */
+
+void ABJ_Pawn::StartRound()
+{
+	pDeck->ClearOfCards();
+
+
+}
+
+void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
+{
+	FCardData lNewCard = pDeck->TakeUpperCard(CroupierCardsLocationPoint);
+
+	CroupiersCards.Add(lNewCard);
+
+	UpdateCroupiersScore();
+
+	CheckRoundStatus();
+}
+
+void ABJ_Pawn::CardToPlayer()
+{
+	FCardData lNewCard = pDeck->TakeUpperCard(PlayerCardsLocationPoint);
+
+	PlayersCards.Add(lNewCard);
+
+	UpdatePlayersScore();
+	CheckRoundStatus();
+}
+
+void ABJ_Pawn::UpdateCroupiersScore()
+{
+	// Счёт Крупье: расчёт и обновление данных
+	CroupiersScore = SummarizingCards(CroupiersCards);
+	pCurrentUserWidget->UpdateCroupiersScore(CroupiersScore);
+}
+
+void ABJ_Pawn::UpdatePlayersScore()
+{
+	// Счёт Игрока: расчёт и обновление данных
+	PlayersScore = SummarizingCards(PlayersCards);
+	pCurrentUserWidget->UpdatePlayersScore(PlayersScore);
+}
+
+void ABJ_Pawn::CheckRoundStatus()
+{
+	if (CroupiersScore == PlayersScore && CroupiersScore == 21) // Проверка "Ничья"
+	{
+		pCurrentUserWidget->RoundIsDraw();
+	}
+	else if (PlayersScore == 21 || CroupiersScore > 21) // Проверка "Победа"
+	{
+		pCurrentUserWidget->RoundIsWin();
+	}
+	else if (CroupiersScore == 21 || PlayersScore > 21) // Проверка "Поражение"
+	{
+		pCurrentUserWidget->RoundIsLose();
+	}
+}
+
+uint8 ABJ_Pawn::SummarizingCards(const TArray<FCardData> iCards) const
+{
+	// Счётчик количества Тузов
+	uint8 lNumAces = 0;
+
+	uint8 lResult = 0;
+
+	// Получение максимального Счёта
+	for (const FCardData& Data : iCards)
+	{
+		if (uint8(Data.Rank) > 10) // Проверка "Картинки"
+		{
+			lResult += 10;
+		}
+		else if (Data.Rank == ERank::Ace) // Проверка "Туза"
+		{
+			lResult += 11;
+			++lNumAces;
+		}
+		else
+		{
+			lResult += uint8(Data.Rank);
+		}
+	}
+
+	// Получение максимального Счёта с учётом всех Тузов, но не больше 21
+	while (lResult > 21 && lNumAces)
+	{
+		lResult -= 10; // Туз либо =11, либо =1
+		--lNumAces;
+	}
+
+	return lResult;
 }
 //--------------------------------------------------------------------------------------

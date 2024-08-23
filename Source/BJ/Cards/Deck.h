@@ -9,6 +9,13 @@
 
 // Generated:
 #include "Deck.generated.h"
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Pre-declaration of classes   --- */
+class ACard;
+//--------------------------------------------------------------------------------------
 
 
 
@@ -54,14 +61,26 @@ public:
 
 	/* ---   CardData   --- */
 
+	// Экземпляр карты
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, noclear, Category = Cards)
+	TSubclassOf<ACard> CardType = nullptr;
+
 	// Сбросить колоду с перетасовкой
 	void Reset();
 	// Обновить данные о текущем количесте карт
 	void UpdateData();
 	// Перетасовать колоду
-	bool Shuffle();
-	// Получить верхнюю карту
-	FCardData TakeUpperCard();
+	void Shuffle();
+	// Очистить стол от карт колоды
+	void ClearOfCards();
+
+	/** 
+	* Получить верхнюю карту
+	* @param	iPoint - Точка, куда перемещается Actor карты
+	* @return	Данные новой карты
+	*/
+	FCardData TakeUpperCard(const class USceneComponent* iPoint);
+
 	// Получить текущее количество карт
 	int32 GetNumOfCards() const;
 	//-------------------------------------------
@@ -71,7 +90,10 @@ public:
 private:
 
 	/* ---   CardData   --- */
+
 	// Все типы карт
 	TArray<FCardData> AllCardsType;
+	// Разыгранные карты за текущий раунд
+	TArray<ACard*> CardsPlayed;
 	//-------------------------------------------
 };

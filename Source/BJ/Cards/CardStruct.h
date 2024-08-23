@@ -5,7 +5,7 @@
 
 
 
-// Номинал карты(достоинство)
+// Номинал карты (достоинство)
 UENUM(BlueprintType)
 enum struct ERank : uint8
 {
@@ -47,7 +47,10 @@ struct FCardData
 	FCardData(ERank iRank = ERank::NONE, ESuit iSuit = ESuit::NONE)
 		: Rank(iRank), Suit(iSuit) {};
 
+	// Номинал карты (достоинство)
 	ERank Rank = ERank::NONE;
+
+	// Масть карты
 	ESuit Suit = ESuit::NONE;
 };
 

@@ -32,7 +32,7 @@ public:
 	* Event для запуска инициализации Widget стола
 	* @param CurrentTable - Указатель на текущий Cтол для взаимодействия в Widget
 	*/
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "InitWidgetForTable"))
+	UFUNCTION(BlueprintImplementableEvent, Category = Table, meta = (DisplayName = "InitWidgetForTable"))
 	void InitWidgetForTable(class ABJ_Pawn* CurrentTable);
 	//-------------------------------------------
 };

@@ -3,6 +3,9 @@
 // Base:
 #include "BJ_UserWidget.h"
 
+// Interaction:
+#include "BJ_Pawn.h"
+
 
 
 /* ---   Interaction with Table   --- */

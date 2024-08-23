@@ -9,7 +9,7 @@
 #include "Camera/CameraComponent.h"
 
 // Interaction:
-#include "BJ/Cards/Deck.h"
+#include "BJ/Cards/CardStruct.h"
 
 // Generated:
 #include "BJ_Pawn.generated.h"
@@ -100,5 +100,64 @@ public:
 	/** Сдаться (завершает раунд с проигрышем) */
 	void CommandToSurrender();
 
+	/**
+	* Функция сохранения указателя на Widget стола
+	* (необходим для прямой передачи данных от Стола к Виджету)
+	* @param iCurrentUserWidget - Указатель на текущий Widget стола
+	*/
+	void InitTableForWidget(class UBJ_UserWidget* iCurrentUserWidget);
+	//-------------------------------------------
+
+
+
+	/* ---   Actions of Croupier   --- */
+
+	// Запуск раунда
+	void StartRound();
+
+	/** Отправить карту крупье */
+	void CardToCroupier(const bool& ibIsTurned);
+
+	/** Отправить карту игроку */
+	void CardToPlayer();
+
+	/** Обновление очков Крупье */
+	void UpdateCroupiersScore();
+
+	/** Обновление очков Игрока */
+	void UpdatePlayersScore();
+
+	/** Проверить статус раунда */
+	void CheckRoundStatus();
+
+	/** Суммирование номинала карт */
+	uint8 SummarizingCards(const TArray<FCardData> iCards) const;
+	//-------------------------------------------
+
+
+
+private:
+
+	/* ---   Interaction from Widget   --- */
+	/** Указатель на текущий виджет */
+	class UBJ_UserWidget* pCurrentUserWidget = nullptr;
+	//-------------------------------------------
+
+
+
+	/* ---   Actions of Croupier   --- */
+
+	/** Указатель на колоду карт */
+	class ADeck* pDeck;
+
+	/** Карты крупье */
+	TArray<FCardData> CroupiersCards;
+	/** Карты игрока */
+	TArray<FCardData> PlayersCards;
+
+	/** Количество очков Крупье для текущего раунда */
+	uint8 CroupiersScore = 0;
+	/** Количество очков Игрока для текущего раунда */
+	uint8 PlayersScore = 0;
 	//-------------------------------------------
 };
