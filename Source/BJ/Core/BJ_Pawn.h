@@ -5,7 +5,6 @@
 #include "GameFramework/Pawn.h"
 
 // UE:
-#include "Components/ChildActorComponent.h"
 #include "Camera/CameraComponent.h"
 
 // Interaction:
@@ -13,6 +12,13 @@
 
 // Generated:
 #include "BJ_Pawn.generated.h"
+
+
+
+/* ---   Pre-declaration of classes   --- */
+class ACard;
+class ADeck;
+//--------------------------------------------------------------------------------------
 
 
 
@@ -60,13 +66,15 @@ public:
 	/** Меш визуализации стола */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* TableMesh = nullptr;
-	/** Колода карт */
+
+	/** Точка местоположения Колоды */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UChildActorComponent* DeckActor;
+	class USceneComponent* DeckLocationPoint = nullptr;
 
 	/** Точка местоположения карт Крупье */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* CroupierCardsLocationPoint = nullptr;
+
 	/** Точка местоположения карт Игрока */
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* PlayerCardsLocationPoint = nullptr;
@@ -76,9 +84,30 @@ public:
 
 	/* ---   Camera   --- */
 
-	// 
+	/** Камера Игрока */
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera = nullptr;
+	//-------------------------------------------
+
+
+
+	/* ---   Cards and Deck   --- */
+
+	// Экземпляр карты
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Deck of Cards")
+	TSubclassOf<ACard> CardsType = nullptr;
+
+	// Трансформ карт
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deck of Cards")
+	FTransform CardsTransform;
+
+	// Экземпляр колоды
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Deck of Cards")
+	TSubclassOf<ADeck> DeckType = nullptr;
+
+	// Трансформ карт
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deck of Cards")
+	FTransform DeckTransform;
 	//-------------------------------------------
 
 
@@ -110,6 +139,50 @@ public:
 
 
 
+private:
+
+	/* ---   Cards and Deck   --- */
+
+	/** Указатель на колоду карт */
+	ADeck* pDeck;
+
+	/** Номиналы карт крупье */
+	TArray<ERank> CroupierCardsData;
+	/** Номиналы карт игрока */
+	TArray<ERank> PlayerCardsData;
+
+	// Разыгранные карты Крупье за текущий раунд
+	TArray<ACard*> CroupierCards;
+
+	// Разыгранные карты Игрока за текущий раунд
+	TArray<ACard*> PlayerCards;
+
+	// Ширина карты 
+	float WidthOfCard;
+
+	// Очистить стол от карт колоды
+	void ClearOfCards();
+
+	// Переместить все карты Руки для лучшего обзора
+	void MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCards);
+
+	// Пересчёт Трансформы (+Локациия, +Ротации и замена размера)
+	FTransform ConversionTransform(const USceneComponent* iPoint, const FTransform& iSetTransform);
+
+	// Создание и перемещение новой Карты
+	ACard* CreateNewCard(TArray<ACard*>& iCards);
+	//-------------------------------------------
+
+
+
+	/* ---   Interaction from Widget   --- */
+
+	/** Указатель на текущий виджет */
+	class UBJ_UserWidget* pCurrentUserWidget = nullptr;
+	//-------------------------------------------
+
+
+
 	/* ---   Game Status   --- */
 
 	/** Запуск хода Крупье */
@@ -128,6 +201,11 @@ public:
 
 
 	/* ---   Actions of Croupier   --- */
+
+	/** Количество очков Крупье для текущего раунда */
+	uint8 CroupiersScore = 0;
+	/** Количество очков Игрока для текущего раунда */
+	uint8 PlayersScore = 0;
 
 	/** Запуск раунда */
 	void StartRound();
@@ -148,33 +226,6 @@ public:
 	void CheckRoundStatus();
 
 	/** Суммирование номинала карт */
-	uint8 SummarizingCards(const TArray<FCardData> iCards) const;
-	//-------------------------------------------
-
-
-
-private:
-
-	/* ---   Interaction from Widget   --- */
-	/** Указатель на текущий виджет */
-	class UBJ_UserWidget* pCurrentUserWidget = nullptr;
-	//-------------------------------------------
-
-
-
-	/* ---   Actions of Croupier   --- */
-
-	/** Указатель на колоду карт */
-	class ADeck* pDeck;
-
-	/** Карты крупье */
-	TArray<FCardData> CroupiersCards;
-	/** Карты игрока */
-	TArray<FCardData> PlayersCards;
-
-	/** Количество очков Крупье для текущего раунда */
-	uint8 CroupiersScore = 0;
-	/** Количество очков Игрока для текущего раунда */
-	uint8 PlayersScore = 0;
+	uint8 SummarizingCards(const TArray<ERank>& iCardsData) const;
 	//-------------------------------------------
 };

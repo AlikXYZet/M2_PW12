@@ -5,7 +5,6 @@
 #include "GameFramework/Actor.h"
 
 // UE:
-#include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
 
 // Interaction:
@@ -64,6 +63,8 @@ public:
 
 	// Записать данные карты
 	void SetCardData(const FCardData& iData);
+	// Получить данные карты
+	ERank GetCardRank();
 	//-------------------------------------------
 
 

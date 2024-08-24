@@ -7,7 +7,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 // Interaction:
-#include "Card.h"
 #include "BJ/Tools/MyRandom.h"
 
 
@@ -51,15 +50,7 @@ void ADeck::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/* ---   CardData   --- */
-
-	if (!CardType.Get())
-	{
-		UE_LOG(LogTemp, Error, TEXT("ADeck %s : CardType is NOT specified"), *GetNameSafe(this));
-	}
-
 	Reset();
-	//-------------------------------------------
 }
 
 // Called every frame
@@ -89,7 +80,6 @@ void ADeck::Reset()
 		}
 	}
 
-	ClearOfCards();
 	UpdateData();
 	Shuffle();
 }
@@ -108,28 +98,21 @@ void ADeck::Shuffle()
 	}
 }
 
-void ADeck::ClearOfCards()
+FCardData ADeck::TakeUpperCard()
 {
-	for (ACard* pCard : CardsPlayed)
+	FCardData lResult;
+
+	if (AllCardsType.Num() > 0)
 	{
-		pCard->Destroy();
+		lResult = AllCardsType.Pop(false);
+
+		// Обновить данные колоды
+		UpdateData();
 	}
-}
-
-FCardData ADeck::TakeUpperCard(const FVector& iToLocation)
-{
-	FCardData lResult = AllCardsType.Pop(false);
-
-	// Обновить данные колоды
-	UpdateData();
-
-	// Создать "взятую" карту и переместить её к владельцу
-	ACard* pNewCard = GetWorld()->SpawnActor<ACard>(CardType.Get(), GetActorTransform());
-	pNewCard->SetCardData(lResult);
-	pNewCard->GoToLocation(iToLocation);
-
-	// Запомнить карту в данном раунде
-	CardsPlayed.Add(pNewCard);
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ADeck::TakeUpperCard : No cards"));
+	}
 
 	return lResult;
 }

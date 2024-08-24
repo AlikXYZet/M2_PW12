@@ -4,17 +4,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+// UE:
+#include "Components/TextRenderComponent.h"
+
 // Interaction:
-#include "CardStruct.h"
+#include "BJ/Cards/CardStruct.h"
 
 // Generated:
 #include "Deck.generated.h"
-//--------------------------------------------------------------------------------------
-
-
-
-/* ---   Pre-declaration of classes   --- */
-class ACard;
 //--------------------------------------------------------------------------------------
 
 
@@ -61,25 +58,18 @@ public:
 
 	/* ---   CardData   --- */
 
-	// Экземпляр карты
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = Cards)
-	TSubclassOf<ACard> CardType = nullptr;
-
 	// Сбросить колоду с перетасовкой
 	void Reset();
 	// Обновить данные о текущем количесте карт
 	void UpdateData();
 	// Перетасовать колоду
 	void Shuffle();
-	// Очистить стол от карт колоды
-	void ClearOfCards();
 
 	/** 
 	* Получить верхнюю карту
-	* @param	iPoint - Точка, куда перемещается Actor карты
 	* @return	Данные новой карты
 	*/
-	FCardData TakeUpperCard(const FVector& iToLocation);
+	FCardData TakeUpperCard();
 
 	// Получить текущее количество карт
 	int32 GetNumOfCards() const;
@@ -93,7 +83,5 @@ private:
 
 	// Все типы карт
 	TArray<FCardData> AllCardsType;
-	// Разыгранные карты за текущий раунд
-	TArray<ACard*> CardsPlayed;
 	//-------------------------------------------
 };

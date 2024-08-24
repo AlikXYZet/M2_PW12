@@ -6,6 +6,7 @@
 // Interaction:
 #include "BJ_PlayerController.h"
 #include "BJ/Cards/Deck.h"
+#include "BJ/Cards/Card.h"
 #include "BJ_UserWidget.h"
 
 
@@ -32,10 +33,9 @@ ABJ_Pawn::ABJ_Pawn()
 	TableMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Table Mesh"));
 	TableMesh->SetupAttachment(RootComponent);
 
-	DeckActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("Deck Actor"));
-	DeckActor->SetupAttachment(RootComponent);
-	DeckActor->SetRelativeLocation(FVector(20.f, -30.f, 70.3f));
-	DeckActor->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
+	DeckLocationPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Deck Actor"));
+	DeckLocationPoint->SetupAttachment(RootComponent);
+	DeckLocationPoint->SetRelativeLocation(FVector(20.f, -30.f, 70.3f));
 
 	CroupierCardsLocationPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Croupier Cards"));
 	CroupierCardsLocationPoint->SetupAttachment(RootComponent);
@@ -55,6 +55,16 @@ ABJ_Pawn::ABJ_Pawn()
 	Camera->SetRelativeLocation(FVector(60.f, 0.f, 120.f));
 	Camera->SetRelativeRotation(FRotator(-60.f, 180.f, 0.f));
 	//-------------------------------------------
+
+
+	/* ---   Cards and Deck   --- */
+
+	FTransform lDefaultTransform;
+	lDefaultTransform.SetScale3D(FVector(0.1f));
+
+	CardsTransform = lDefaultTransform;
+	DeckTransform = lDefaultTransform;
+	//-------------------------------------------
 }
 //--------------------------------------------------------------------------------------
 
@@ -67,11 +77,22 @@ void ABJ_Pawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Проверка на наличие корректной Колоды
-	pDeck = Cast<ADeck>(DeckActor->GetChildActor());
-	if (!pDeck)
+	// Проверка на корректность и создание Колоды
+	if (DeckType.Get())
 	{
-		UE_LOG(LogTemp, Error, TEXT("ABJ_Pawn %s : DeckActor is NOT ADeck"), *GetNameSafe(this));
+		pDeck = GetWorld()->SpawnActor<ADeck>(
+			DeckType.Get(),
+			ConversionTransform(DeckLocationPoint, DeckTransform));;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ADeck %s : DeckType is NOT specified"), *GetNameSafe(this));
+	}
+
+	// Проверка на корректность типа Карт
+	if (!CardsType.Get())
+	{
+		UE_LOG(LogTemp, Error, TEXT("ADeck %s : CardsType is NOT specified"), *GetNameSafe(this));
 	}
 
 	StartRound();
@@ -107,6 +128,82 @@ void ABJ_Pawn::PossessedBy(AController* NewController)
 void ABJ_Pawn::UnPossessed()
 {
 	Super::UnPossessed();
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Cards and Deck   --- */
+
+void ABJ_Pawn::ClearOfCards()
+{
+	for (ACard* pCard : CroupierCards)
+	{
+		pCard->Destroy();
+	}
+
+	for (ACard* pCard : PlayerCards)
+	{
+		pCard->Destroy();
+	}
+
+	CroupierCardsData.Empty();
+	PlayerCardsData.Empty();
+}
+
+void ABJ_Pawn::MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCards)
+{
+	//float lWidth = CardsType->GetActorBounds();
+	if (iCards.Num() > 0)
+	{
+		if (!WidthOfCard)
+		{
+			WidthOfCard = 100.f * iCards[0]->CardMesh->GetComponentScale().Y;
+		}
+
+		int32 lNumCards = iCards.Num();
+
+		// Расчитанный промежуток между картами + ширина между картами
+		float lSpace = WidthOfCard + WidthOfCard / 16;
+		// Расчитанная половина длины от середин первой и последней карты
+		float lWidthAllCards = lSpace * (lNumCards - 1) / 2;
+
+		for (int32 i = 0; i < lNumCards; ++i)
+		{
+			// Расчёт необходимой локации
+			FVector lCalculatedLocation =
+				iPoint->GetComponentLocation()
+				+ FVector(
+					0.f,
+					lWidthAllCards - i * (lSpace),
+					0.f);
+
+			iCards[i]->GoToLocation(lCalculatedLocation);
+		}
+	}
+}
+
+FTransform ABJ_Pawn::ConversionTransform(const USceneComponent* iPoint, const FTransform& iSetTransform)
+{
+	FTransform lResult = iPoint->GetComponentTransform() + iSetTransform;
+
+	lResult.SetScale3D(iSetTransform.GetScale3D());
+
+	return lResult;
+}
+
+ACard* ABJ_Pawn::CreateNewCard(TArray<ACard*>& iCards)
+{
+	// Создать "взятую" карту и переместить её к владельцу
+	ACard* pNewCard = GetWorld()->SpawnActor<ACard>(
+		CardsType.Get(),
+		ConversionTransform(DeckLocationPoint, CardsTransform));
+
+	pNewCard->SetCardData(pDeck->TakeUpperCard());
+
+	iCards.Add(pNewCard);
+
+	return pNewCard;
 }
 //--------------------------------------------------------------------------------------
 
@@ -178,7 +275,7 @@ void ABJ_Pawn::StartRound()
 	// Проверка при разных сценариях
 	if (pDeck && pCurrentUserWidget)
 	{
-		pDeck->ClearOfCards();
+		ClearOfCards();
 
 		// Первоначальная раздача по две карты
 		CardToCroupier();
@@ -212,24 +309,26 @@ void ABJ_Pawn::StartRound()
 
 void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
 {
-	FCardData lNewCard = pDeck->TakeUpperCard(CroupierCardsLocationPoint->GetComponentLocation());
+	// Запомнить новую карту и передать её Крупье
+	ACard* lCard = CreateNewCard(CroupierCards);
 
-	float lSpaceY = 10 * pDeck->DeckMesh->GetRelativeScale3D().Y;
+	// Отдельно запомнить необходимые данные карт Крупье
+	CroupierCardsData.Add(lCard->GetCardRank());
 
-	CroupierCardsLocationPoint->AddRelativeLocation(FVector(0.f, -lSpaceY, 0.f));
-
-	CroupiersCards.Add(lNewCard);
-
+	MoveAllCards(CroupierCardsLocationPoint, CroupierCards);
 	UpdateCroupiersScore();
 	CheckRoundStatus();
 }
 
 void ABJ_Pawn::CardToPlayer()
 {
-	FCardData lNewCard = pDeck->TakeUpperCard(PlayerCardsLocationPoint->GetComponentLocation());
+	// Запомнить новую карту и передать её Игроку
+	ACard* lCard = CreateNewCard(PlayerCards);
 
-	PlayersCards.Add(lNewCard);
+	// Отдельно запомнить необходимые данные карт Игрока
+	PlayerCardsData.Add(lCard->GetCardRank());
 
+	MoveAllCards(PlayerCardsLocationPoint, PlayerCards);
 	UpdatePlayersScore();
 	CheckRoundStatus();
 }
@@ -237,14 +336,14 @@ void ABJ_Pawn::CardToPlayer()
 void ABJ_Pawn::UpdateCroupiersScore()
 {
 	// Счёт Крупье: расчёт и обновление данных
-	CroupiersScore = SummarizingCards(CroupiersCards);
+	CroupiersScore = SummarizingCards(CroupierCardsData);
 	pCurrentUserWidget->UpdateCroupiersScore(CroupiersScore);
 }
 
 void ABJ_Pawn::UpdatePlayersScore()
 {
 	// Счёт Игрока: расчёт и обновление данных
-	PlayersScore = SummarizingCards(PlayersCards);
+	PlayersScore = SummarizingCards(PlayerCardsData);
 	pCurrentUserWidget->UpdatePlayersScore(PlayersScore);
 }
 
@@ -264,7 +363,7 @@ void ABJ_Pawn::CheckRoundStatus()
 	}
 }
 
-uint8 ABJ_Pawn::SummarizingCards(const TArray<FCardData> iCards) const
+uint8 ABJ_Pawn::SummarizingCards(const TArray<ERank>& iCardsData) const
 {
 	// Счётчик количества Тузов
 	uint8 lNumAces = 0;
@@ -272,20 +371,20 @@ uint8 ABJ_Pawn::SummarizingCards(const TArray<FCardData> iCards) const
 	uint8 lResult = 0;
 
 	// Получение максимального Счёта
-	for (const FCardData& Data : iCards)
+	for (const ERank& Data : iCardsData)
 	{
-		if (uint8(Data.Rank) > 10) // Проверка "Картинки"
+		if (uint8(Data) > 10) // Проверка "Картинки"
 		{
 			lResult += 10;
 		}
-		else if (Data.Rank == ERank::Ace) // Проверка "Туза"
+		else if (Data == ERank::Ace) // Проверка "Туза"
 		{
 			lResult += 11;
 			++lNumAces;
 		}
 		else
 		{
-			lResult += uint8(Data.Rank);
+			lResult += uint8(Data);
 		}
 	}
 

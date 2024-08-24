@@ -98,6 +98,11 @@ void ACard::SetCardData(const FCardData& iData)
 	SuitText->SetText(UEnum::GetDisplayValueAsText(CardData.Suit));
 }
 
+ERank ACard::GetCardRank()
+{
+	return CardData.Rank;
+}
+
 void ACard::GoToLocation(const FVector& iToLocation)
 {
 	bIsMovingToNewLocation = true;
