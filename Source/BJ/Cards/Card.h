@@ -27,8 +27,6 @@ public:
 
 	// Sets default values for this actor's properties
 	ACard();
-
-	ACard(const FCardData& iCardData);
 	//-------------------------------------------
 
 
@@ -62,10 +60,47 @@ public:
 
 
 
+	/* ---   CardData   --- */
+
+	// Записать данные карты
+	void SetCardData(const FCardData& iData);
+	//-------------------------------------------
+
+
+
+	/* ---   Movement   --- */
+
+	// Скорость перемещения
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+	float MovementSpeed = 5.0f;
+
+	// Допуск отклонения
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+	float DeviationTolerance = 0.1f;
+
+	// Флаг контроля перемещения
+	bool bIsMovingToNewLocation = false;
+
+	/**
+	* Плавно переместить карту в указанную локацию
+	* @param iToLocation - Точка, куда перемещается Actor карты
+	*/
+	void GoToLocation(const FVector& iToLocation);
+	//-------------------------------------------
+
+
+
 private:
 
 	/* ---   CardData   --- */
 	// Данные карты (номинал и масть)
 	FCardData CardData;
+	//-------------------------------------------
+
+
+
+	/* ---   Movement   --- */
+	// Новая локация к которой стремится данная карта
+	FVector NewLocation;
 	//-------------------------------------------
 };

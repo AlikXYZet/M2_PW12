@@ -11,7 +11,7 @@
 ACard::ACard()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false; // Предварительно
+	PrimaryActorTick.bCanEverTick = true; // Предварительно
 
 
 
@@ -42,12 +42,6 @@ ACard::ACard()
 	SuitText->SetTextRenderColor(FColor::Red);
 	//-------------------------------------------
 }
-
-ACard::ACard(const FCardData& iCardData)
-	: ACard()
-{
-	CardData = iCardData;
-}
 //--------------------------------------------------------------------------------------
 
 
@@ -57,6 +51,40 @@ ACard::ACard(const FCardData& iCardData)
 void ACard::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ACard::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Контроль перемещения
+	if (bIsMovingToNewLocation)
+	{
+		FVector lCurrentLocation = GetActorLocation();
+
+		// Контроль близости к новой локации
+		if ((lCurrentLocation - NewLocation).Size() < DeviationTolerance)
+		{
+			SetActorLocation(NewLocation);
+			bIsMovingToNewLocation = false;
+		}
+		else
+		{
+			// Плавная интерполяция перемещения
+			SetActorLocation(FMath::VInterpTo(lCurrentLocation, NewLocation, DeltaTime, MovementSpeed));
+		}
+	}
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   CardData   --- */
+
+void ACard::SetCardData(const FCardData& iData)
+{
+	// Установить новое значение
+	CardData = iData;
 
 	// Установка цвета по масти
 	if (CardData.Suit == ESuit::Clubs
@@ -65,10 +93,15 @@ void ACard::BeginPlay()
 		RankText->SetTextRenderColor(FColor::Black);
 		SuitText->SetTextRenderColor(FColor::Black);
 	}
+
+	RankText->SetText(UEnum::GetDisplayValueAsText(CardData.Rank));
+	SuitText->SetText(UEnum::GetDisplayValueAsText(CardData.Suit));
 }
 
-void ACard::Tick(float DeltaTime)
+void ACard::GoToLocation(const FVector& iToLocation)
 {
-	Super::Tick(DeltaTime);
+	bIsMovingToNewLocation = true;
+
+	NewLocation = iToLocation;
 }
 //--------------------------------------------------------------------------------------

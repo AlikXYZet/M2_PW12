@@ -152,7 +152,7 @@ void ABJ_Pawn::StartRound()
 
 void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
 {
-	FCardData lNewCard = pDeck->TakeUpperCard(CroupierCardsLocationPoint);
+	FCardData lNewCard = pDeck->TakeUpperCard(CroupierCardsLocationPoint->GetComponentLocation());
 
 	CroupiersCards.Add(lNewCard);
 
@@ -163,7 +163,7 @@ void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
 
 void ABJ_Pawn::CardToPlayer()
 {
-	FCardData lNewCard = pDeck->TakeUpperCard(PlayerCardsLocationPoint);
+	FCardData lNewCard = pDeck->TakeUpperCard(PlayerCardsLocationPoint->GetComponentLocation());
 
 	PlayersCards.Add(lNewCard);
 

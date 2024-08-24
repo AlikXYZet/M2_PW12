@@ -62,7 +62,7 @@ public:
 	/* ---   CardData   --- */
 
 	// Экземпляр карты
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, noclear, Category = Cards)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = Cards)
 	TSubclassOf<ACard> CardType = nullptr;
 
 	// Сбросить колоду с перетасовкой
@@ -79,7 +79,7 @@ public:
 	* @param	iPoint - Точка, куда перемещается Actor карты
 	* @return	Данные новой карты
 	*/
-	FCardData TakeUpperCard(const class USceneComponent* iPoint);
+	FCardData TakeUpperCard(const FVector& iToLocation);
 
 	// Получить текущее количество карт
 	int32 GetNumOfCards() const;

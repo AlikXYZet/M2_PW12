@@ -116,17 +116,20 @@ void ADeck::ClearOfCards()
 	}
 }
 
-FCardData ADeck::TakeUpperCard(const class USceneComponent* iPoint)
+FCardData ADeck::TakeUpperCard(const FVector& iToLocation)
 {
 	FCardData lResult = AllCardsType.Pop(false);
 
+	// Обновить данные колоды
 	UpdateData();
 
-	ACard* pNewCard = GetWorld()->SpawnActor<ACard>(CardType.Get(), GetActorLocation(), GetActorRotation());
+	// Создать "взятую" карту и переместить её к владельцу
+	ACard* pNewCard = GetWorld()->SpawnActor<ACard>(CardType.Get(), GetActorTransform());
+	pNewCard->SetCardData(lResult);
+	pNewCard->GoToLocation(iToLocation);
 
+	// Запомнить карту в данном раунде
 	CardsPlayed.Add(pNewCard);
-
-	//UKismetSystemLibrary::MoveComponentTo();
 
 	return lResult;
 }
