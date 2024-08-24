@@ -39,7 +39,7 @@ ABJ_Pawn::ABJ_Pawn()
 
 	CroupierCardsLocationPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Croupier Cards"));
 	CroupierCardsLocationPoint->SetupAttachment(RootComponent);
-	CroupierCardsLocationPoint->SetRelativeLocation(FVector(0.f, 0.f, 70.f));
+	CroupierCardsLocationPoint->SetRelativeLocation(FVector(10.f, 0.f, 70.f));
 
 	PlayerCardsLocationPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Player Cards"));
 	PlayerCardsLocationPoint->SetupAttachment(RootComponent);
@@ -73,6 +73,8 @@ void ABJ_Pawn::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("ABJ_Pawn %s : DeckActor is NOT ADeck"), *GetNameSafe(this));
 	}
+
+	StartRound();
 }
 
 // Called every frame
@@ -90,9 +92,8 @@ void ABJ_Pawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	ABJ_PlayerController* lCurrentPCTable = Cast<ABJ_PlayerController>(NewController);
-
 	// Инициализация Виджета стола при подключении игрока к пешке
+	ABJ_PlayerController* lCurrentPCTable = Cast<ABJ_PlayerController>(NewController);
 	if (lCurrentPCTable)
 	{
 		lCurrentPCTable->InitWidgetForTable(this);
@@ -115,27 +116,56 @@ void ABJ_Pawn::UnPossessed()
 
 void ABJ_Pawn::CommandToHit()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToHit"));
+	CardToPlayer();
+	CroupierTurn();
 }
 
 void ABJ_Pawn::CommandToStand()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToStand"));
+	CroupierTurn();
 }
 
 void ABJ_Pawn::CommandToSurrender()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CommandToSurrender"));
+	RoundIsLose();
+	// PS: Временно! 
+	// Следует сделать подтверждение данного сценария через Виджет
 }
 
 void ABJ_Pawn::InitTableForWidget(UBJ_UserWidget* iCurrentUserWidget)
 {
 	pCurrentUserWidget = iCurrentUserWidget;
+}
+//--------------------------------------------------------------------------------------
 
-	if (pDeck && pCurrentUserWidget)
-	{
-		StartRound();
-	}
+
+
+/* ---   Game Status   --- */
+
+void ABJ_Pawn::CroupierTurn()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CroupierTurn"));
+}
+
+void ABJ_Pawn::RoundIsDraw()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::RoundIsDraw"));
+
+	pCurrentUserWidget->RoundIsDraw();
+}
+
+void ABJ_Pawn::RoundIsWin()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::RoundIsWin"));
+
+	pCurrentUserWidget->RoundIsWin();
+}
+
+void ABJ_Pawn::RoundIsLose()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::RoundIsLose"));
+
+	pCurrentUserWidget->RoundIsLose();
 }
 //--------------------------------------------------------------------------------------
 
@@ -145,19 +175,52 @@ void ABJ_Pawn::InitTableForWidget(UBJ_UserWidget* iCurrentUserWidget)
 
 void ABJ_Pawn::StartRound()
 {
-	pDeck->ClearOfCards();
+	// Проверка при разных сценариях
+	if (pDeck && pCurrentUserWidget)
+	{
+		pDeck->ClearOfCards();
 
+		// Первоначальная раздача по две карты
+		CardToCroupier();
+		CardToPlayer();
+		CardToCroupier();
+		CardToPlayer();
+	}
+	else if (!pDeck)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABJ_Pawn::StartRound : pDeck is NULLPTR"));
 
+		/* PS: Если работает "автоподхват игрока" в данную пешку,
+		* то InitTableForWidget() выполняется раньше, чем BeginPlay().
+		*
+		* Следовательно pDeck = nullptr,
+		* а StartRound() в BeginPlay() не выполнит работу
+		*/
+	}
+	else if (!pCurrentUserWidget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ABJ_Pawn::StartRound : pCurrentUserWidget is NULLPTR"));
+
+		/* PS: Если работает "вход игрока" в данную пешку,
+		* то BeginPlay() выполняется раньше, чем InitTableForWidget().
+		*
+		* Следовательно pCurrentUserWidget = nullptr,
+		* а StartRound() в InitTableForWidget() не выполнит работу
+		*/
+	}
 }
 
 void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
 {
 	FCardData lNewCard = pDeck->TakeUpperCard(CroupierCardsLocationPoint->GetComponentLocation());
 
+	float lSpaceY = 10 * pDeck->DeckMesh->GetRelativeScale3D().Y;
+
+	CroupierCardsLocationPoint->AddRelativeLocation(FVector(0.f, -lSpaceY, 0.f));
+
 	CroupiersCards.Add(lNewCard);
 
 	UpdateCroupiersScore();
-
 	CheckRoundStatus();
 }
 

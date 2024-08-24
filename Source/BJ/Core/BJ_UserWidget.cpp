@@ -8,8 +8,26 @@
 
 
 
-/* ---   Interaction with Table   --- */
+/* ---   Base   --- */
 
+void UBJ_UserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (CurrentTable)
+	{
+		CurrentTable->InitTableForWidget(this);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UBJ_UserWidget::NativeConstruct : CurrentTable is NULLPTR"));
+	}
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Interaction with Table   --- */
 void UBJ_UserWidget::CommandToHit()
 {
 	CurrentTable->CommandToHit();

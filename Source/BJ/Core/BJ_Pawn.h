@@ -110,15 +110,32 @@ public:
 
 
 
+	/* ---   Game Status   --- */
+
+	/** Запуск хода Крупье */
+	void CroupierTurn();
+
+	/** Сценарий при раунде в ничью */
+	void RoundIsDraw();
+
+	/** Сценарий при победном раунде */
+	void RoundIsWin();
+
+	/** Сценарий при проигранном раунде */
+	void RoundIsLose();
+	//-------------------------------------------
+
+
+
 	/* ---   Actions of Croupier   --- */
 
-	// Запуск раунда
+	/** Запуск раунда */
 	void StartRound();
 
-	/** Отправить карту крупье */
-	void CardToCroupier(const bool& ibIsTurned);
+	/** Отправить карту Крупье */
+	void CardToCroupier(const bool& ibIsTurned = false);
 
-	/** Отправить карту игроку */
+	/** Отправить карту Игроку */
 	void CardToPlayer();
 
 	/** Обновление очков Крупье */

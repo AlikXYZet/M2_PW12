@@ -19,6 +19,19 @@ class BJ_API UBJ_UserWidget : public UUserWidget
 
 public:
 
+	/* ---   Base   --- */
+
+	//~UBJ_UserWidget();
+
+	// Аналогичен простому Construct()
+	virtual void NativeConstruct() override;
+
+	// Аналогичен простому Tick(")
+	//virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	//--------------------------------------------
+
+
+
 	/* ---   Interaction with Table   --- */
 
 	/** Взять карту */
