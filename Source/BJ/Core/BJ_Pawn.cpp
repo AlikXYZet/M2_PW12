@@ -43,7 +43,7 @@ ABJ_Pawn::ABJ_Pawn()
 
 	CroupierCardsLocationPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Croupier Cards"));
 	CroupierCardsLocationPoint->SetupAttachment(RootComponent);
-	CroupierCardsLocationPoint->SetRelativeLocation(FVector(10.f, 0.f, 70.f));
+	CroupierCardsLocationPoint->SetRelativeLocation(FVector(10.f, 0.f, 70.3f));
 
 	PlayerCardsLocationPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Player Cards"));
 	PlayerCardsLocationPoint->SetupAttachment(RootComponent);
