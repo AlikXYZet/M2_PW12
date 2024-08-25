@@ -160,7 +160,6 @@ void ABJ_Pawn::ClearOfCards()
 
 void ABJ_Pawn::MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCards)
 {
-	//float lWidth = CardsType->GetActorBounds();
 	if (iCards.Num() > 0)
 	{
 		if (!WidthOfCard)
@@ -180,10 +179,11 @@ void ABJ_Pawn::MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCard
 			// Расчёт необходимой локации
 			FVector lCalculatedLocation
 				= iPoint->GetComponentLocation()
-				+ FVector(
-					0.f,
-					lWidthAllCards - i * (lSpace),
-					0.f);
+				+ iPoint->GetComponentRotation().RotateVector(
+					FVector(
+						0.f,
+						lWidthAllCards - i * (lSpace),
+						0.f));
 
 			iCards[i]->GoToLocation(lCalculatedLocation);
 		}
