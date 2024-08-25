@@ -114,11 +114,14 @@ public:
 
 	/* ---   Interaction from Widget   --- */
 
+	/** Запуск раунда */
+	void StartRound();
+
 	/** Взять карту */
-	void CommandToHit();
+	void WidgetCommandToHit();
 
 	/** Не брать карту */
-	void CommandToStand();
+	void WidgetCommandToStand();
 
 	/** Разбить руку на две (только если есть две карты и они совпали по номиналу) */
 	//void CommandToSplit();
@@ -127,10 +130,9 @@ public:
 	//void CommandToDouble();
 
 	/** Сдаться (завершает раунд с проигрышем) */
-	void CommandToSurrender();
+	void WidgetCommandToSurrender();
 
-	/**
-	* Функция сохранения указателя на Widget стола
+	/** Функция сохранения указателя на Widget стола
 	* (необходим для прямой передачи данных от Стола к Виджету)
 	* @param iCurrentUserWidget - Указатель на текущий Widget стола
 	*/
@@ -151,25 +153,34 @@ private:
 	/** Номиналы карт игрока */
 	TArray<ERank> PlayerCardsData;
 
-	// Разыгранные карты Крупье за текущий раунд
+	/** Разыгранные карты Крупье за текущий раунд */
 	TArray<ACard*> CroupierCards;
-
-	// Разыгранные карты Игрока за текущий раунд
+	/** Разыгранные карты Игрока за текущий раунд */
 	TArray<ACard*> PlayerCards;
 
-	// Ширина карты 
+	/** Ширина карты */
 	float WidthOfCard;
 
-	// Очистить стол от карт колоды
+	/** Очистить стол от карт колоды (сбросить раунд) */
 	void ClearOfCards();
 
-	// Переместить все карты Руки для лучшего обзора
+	/** Переместить все карты "Руки" для лучшего обзора
+	* @param	iPoint - Точка местоположения чего-либо в виде " USceneComponent* "
+	* @param	iCards - Массив карт "Руки" для переставления их на столе
+	*/
 	void MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCards);
 
-	// Пересчёт Трансформы (+Локациия, +Ротации и замена размера)
+	/** Пересчёт Трансформы (+Локациия, +Ротации и замена размера)
+	* @param	iPoint - Точка местоположения чего-либо в виде " USceneComponent* "
+	* @param	iSetTransform - Трасформация обьекта относительно " iPoint "
+	* @return	Расчитанная Трансформация
+	*/
 	FTransform ConversionTransform(const USceneComponent* iPoint, const FTransform& iSetTransform);
 
-	// Создание и перемещение новой Карты
+	/** Создание и перемещение новой Карты
+	* @param	iCards - Массив карт "Руки" для добавления в него новой Карты
+	* @return	Указатель на новую Карту
+	*/
 	ACard* CreateNewCard(TArray<ACard*>& iCards);
 	//-------------------------------------------
 
@@ -179,6 +190,9 @@ private:
 
 	/** Указатель на текущий виджет */
 	class UBJ_UserWidget* pCurrentUserWidget = nullptr;
+
+	/** Флаг контроля блокировки команд */
+	bool bIsBlockCommands = true;
 	//-------------------------------------------
 
 
@@ -207,10 +221,12 @@ private:
 	/** Количество очков Игрока для текущего раунда */
 	uint8 PlayersScore = 0;
 
-	/** Запуск раунда */
-	void StartRound();
+	/** Карты Крупье собраны */
+	bool bCroupierCardsIsCollected = false;
 
-	/** Отправить карту Крупье */
+	/** Отправить карту Крупье
+	* @param	ibIsTurned - Перевернуть ли карту (PS: Пока не реализовано)
+	*/
 	void CardToCroupier(const bool& ibIsTurned = false);
 
 	/** Отправить карту Игроку */
@@ -225,7 +241,13 @@ private:
 	/** Проверить статус раунда */
 	void CheckRoundStatus();
 
-	/** Суммирование номинала карт */
+	/** Итогово проверить статус раунда (с окончательным результатом) */
+	void FinallyCheckRoundStatus();
+
+	/** Суммирование номинала карт (расчёт количества очков "Руки")
+	* @param	iCardsData - Массив карт "Руки", которую требуется расчитать
+	* @return	Количество очков данной "Руки"
+	*/
 	uint8 SummarizingCards(const TArray<ERank>& iCardsData) const;
 	//-------------------------------------------
 };

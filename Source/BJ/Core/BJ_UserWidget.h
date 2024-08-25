@@ -35,11 +35,11 @@ public:
 	/* ---   Interaction with Table   --- */
 
 	/** Взять карту */
-	UFUNCTION(BlueprintCallable, Category = Table)
+	UFUNCTION(BlueprintCallable, Category = "Table-Pawn")
 	void CommandToHit();
 
 	/** Не брать карту */
-	UFUNCTION(BlueprintCallable, Category = Table)
+	UFUNCTION(BlueprintCallable, Category = "Table-Pawn")
 	void CommandToStand();
 
 	/** Разбить руку на две (только если есть две карты и они совпали по номиналу) */
@@ -51,34 +51,38 @@ public:
 	//void CommandToDouble();
 
 	/** Сдаться (завершает раунд с проигрышем) */
-	UFUNCTION(BlueprintCallable, Category = Table)
+	UFUNCTION(BlueprintCallable, Category = "Table-Pawn")
 	void CommandToSurrender();
+
+	/** Запустить новый раунд */
+	UFUNCTION(BlueprintCallable, Category = "Table-Pawn")
+	void CommandToNextRound();
 
 	/**
 	* Event обновления очков Крупье
 	* @param Score - Текущее количество очков
 	*/
-	UFUNCTION(BlueprintImplementableEvent, Category = Table, meta = (DisplayName = "UpdateCroupiersScore"))
-	void UpdateCroupiersScore(const uint8& Score);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Update Croupiers Score"))
+	void EventUpdateCroupiersScore(const uint8& Score);
 
 	/** 
 	* Event обновления очков Игрока
 	* @param Score - Текущее количество очков
 	*/
-	UFUNCTION(BlueprintImplementableEvent, Category = Table, meta = (DisplayName = "UpdatePlayersScore"))
-	void UpdatePlayersScore(const uint8& Score);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Update Players Score"))
+	void EventUpdatePlayersScore(const uint8& Score);
 
 	/** Event при раунде в ничью */
-	UFUNCTION(BlueprintImplementableEvent, Category = Table, meta = (DisplayName = "RoundIsDraw"))
-	void RoundIsDraw();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Notice Round Is Draw"))
+	void EventNoticeRoundIsDraw();
 
 	/** Event при победном раунде */
-	UFUNCTION(BlueprintImplementableEvent, Category = Table, meta = (DisplayName = "RoundIsWin"))
-	void RoundIsWin();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Notice Round Is Win"))
+	void EventNoticeRoundIsWin();
 
 	/** Event при проигранном раунде */
-	UFUNCTION(BlueprintImplementableEvent, Category = Table, meta = (DisplayName = "RoundIsLose"))
-	void RoundIsLose();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Notice Round Is Lose"))
+	void EventNoticeRoundIsLose();
 	//-------------------------------------------
 
 
@@ -88,7 +92,7 @@ private:
 	/* ---   Interaction with Table   --- */
 
 	/** Текущий стол (пешка) */
-	UPROPERTY(BlueprintReadOnly, Category = Table, meta = (ExposeOnSpawn = "true", AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = "Table-Pawn", meta = (ExposeOnSpawn = "true", AllowPrivateAccess = "true"))
 	class ABJ_Pawn* CurrentTable;
 	//-------------------------------------------
 };

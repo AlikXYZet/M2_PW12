@@ -30,16 +30,21 @@ void UBJ_UserWidget::NativeConstruct()
 /* ---   Interaction with Table   --- */
 void UBJ_UserWidget::CommandToHit()
 {
-	CurrentTable->CommandToHit();
+	CurrentTable->WidgetCommandToHit();
 }
 
 void UBJ_UserWidget::CommandToStand()
 {
-	CurrentTable->CommandToStand();
+	CurrentTable->WidgetCommandToStand();
 }
 
 void UBJ_UserWidget::CommandToSurrender()
 {
-	CurrentTable->CommandToSurrender();
+	CurrentTable->WidgetCommandToSurrender();
+}
+
+void UBJ_UserWidget::CommandToNextRound()
+{
+	CurrentTable->StartRound();
 }
 //--------------------------------------------------------------------------------------

@@ -82,7 +82,7 @@ void ABJ_Pawn::BeginPlay()
 	{
 		pDeck = GetWorld()->SpawnActor<ADeck>(
 			DeckType.Get(),
-			ConversionTransform(DeckLocationPoint, DeckTransform));;
+			ConversionTransform(DeckLocationPoint, DeckTransform));
 	}
 	else
 	{
@@ -117,7 +117,7 @@ void ABJ_Pawn::PossessedBy(AController* NewController)
 	ABJ_PlayerController* lCurrentPCTable = Cast<ABJ_PlayerController>(NewController);
 	if (lCurrentPCTable)
 	{
-		lCurrentPCTable->InitWidgetForTable(this);
+		lCurrentPCTable->EventInitWidgetForTable(this);
 	}
 	else
 	{
@@ -137,18 +137,35 @@ void ABJ_Pawn::UnPossessed()
 
 void ABJ_Pawn::ClearOfCards()
 {
+	// Удаление Карт Крупье
 	for (ACard* pCard : CroupierCards)
 	{
 		pCard->Destroy();
 	}
+	CroupierCards.Empty();
 
+	// Удаление Карт Игрока
 	for (ACard* pCard : PlayerCards)
 	{
 		pCard->Destroy();
 	}
+	PlayerCards.Empty();
 
+	// Очистка массивов данных о номиналах карт "Руки"
 	CroupierCardsData.Empty();
 	PlayerCardsData.Empty();
+
+	// Сброс флагов раунда
+	bCroupierCardsIsCollected = false;
+	bIsBlockCommands = false;
+
+	// Сброс колоды при количестве карт меньше 16
+	if (pDeck->GetNumOfCards() < 16)
+	{
+		pDeck->Reset();
+		// PS: максимальное количество разыгранных карт
+		// за раунд при ОДНОЙ колоде = 16
+	}
 }
 
 void ABJ_Pawn::MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCards)
@@ -171,8 +188,8 @@ void ABJ_Pawn::MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCard
 		for (int32 i = 0; i < lNumCards; ++i)
 		{
 			// Расчёт необходимой локации
-			FVector lCalculatedLocation =
-				iPoint->GetComponentLocation()
+			FVector lCalculatedLocation
+				= iPoint->GetComponentLocation()
 				+ FVector(
 					0.f,
 					lWidthAllCards - i * (lSpace),
@@ -211,77 +228,23 @@ ACard* ABJ_Pawn::CreateNewCard(TArray<ACard*>& iCards)
 
 /* ---   Interaction from Widget   --- */
 
-void ABJ_Pawn::CommandToHit()
-{
-	CardToPlayer();
-	CroupierTurn();
-}
-
-void ABJ_Pawn::CommandToStand()
-{
-	CroupierTurn();
-}
-
-void ABJ_Pawn::CommandToSurrender()
-{
-	RoundIsLose();
-	// PS: Временно! 
-	// Следует сделать подтверждение данного сценария через Виджет
-}
-
-void ABJ_Pawn::InitTableForWidget(UBJ_UserWidget* iCurrentUserWidget)
-{
-	pCurrentUserWidget = iCurrentUserWidget;
-}
-//--------------------------------------------------------------------------------------
-
-
-
-/* ---   Game Status   --- */
-
-void ABJ_Pawn::CroupierTurn()
-{
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::CroupierTurn"));
-}
-
-void ABJ_Pawn::RoundIsDraw()
-{
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::RoundIsDraw"));
-
-	pCurrentUserWidget->RoundIsDraw();
-}
-
-void ABJ_Pawn::RoundIsWin()
-{
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::RoundIsWin"));
-
-	pCurrentUserWidget->RoundIsWin();
-}
-
-void ABJ_Pawn::RoundIsLose()
-{
-	UE_LOG(LogTemp, Warning, TEXT("BJ_Pawn::RoundIsLose"));
-
-	pCurrentUserWidget->RoundIsLose();
-}
-//--------------------------------------------------------------------------------------
-
-
-
-/* ---   Actions of Croupier   --- */
-
 void ABJ_Pawn::StartRound()
 {
 	// Проверка при разных сценариях
-	if (pDeck && pCurrentUserWidget)
+	if (pDeck && pCurrentUserWidget && bIsBlockCommands)
 	{
 		ClearOfCards();
 
-		// Первоначальная раздача по две карты
+		// Сперва: Раздать карты без проверки количества очков
 		CardToCroupier();
 		CardToPlayer();
 		CardToCroupier();
 		CardToPlayer();
+
+		// После: Проверить количество очков
+		UpdateCroupiersScore();
+		UpdatePlayersScore();
+		CheckRoundStatus();
 	}
 	else if (!pDeck)
 	{
@@ -305,7 +268,101 @@ void ABJ_Pawn::StartRound()
 		* а StartRound() в InitTableForWidget() не выполнит работу
 		*/
 	}
+	else if (!bIsBlockCommands)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABJ_Pawn::StartRound : Round is running"));
+
+		// PS: Раунд нельзя перезапустить до его окончания
+	}
 }
+
+void ABJ_Pawn::WidgetCommandToHit()
+{
+	if (!bIsBlockCommands)
+	{
+		CardToPlayer();
+		UpdatePlayersScore();
+		CheckRoundStatus();
+
+		CroupierTurn();
+	}
+}
+
+void ABJ_Pawn::WidgetCommandToStand()
+{
+	if (!bIsBlockCommands)
+	{
+		CroupierTurn();
+
+		if (bCroupierCardsIsCollected)
+		{
+			FinallyCheckRoundStatus();
+		}
+	}
+}
+
+void ABJ_Pawn::WidgetCommandToSurrender()
+{
+	if (!bIsBlockCommands)
+	{
+		RoundIsLose();
+		// PS: Временно! 
+		// Следует сделать подтверждение данного сценария через Виджет
+	}
+}
+
+void ABJ_Pawn::InitTableForWidget(UBJ_UserWidget* iCurrentUserWidget)
+{
+	pCurrentUserWidget = iCurrentUserWidget;
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Game Status   --- */
+
+void ABJ_Pawn::CroupierTurn()
+{
+	// Проверка хода Игрока
+	if (!bIsBlockCommands)
+	{
+		// Собирать карты, пока очков менее 16
+		if (CroupiersScore < 16)
+		{
+			CardToCroupier();
+			UpdateCroupiersScore();
+		}
+		else if (!bCroupierCardsIsCollected)
+		{
+			bCroupierCardsIsCollected = true;
+		}
+
+		CheckRoundStatus();
+	}
+}
+
+void ABJ_Pawn::RoundIsDraw()
+{
+	bIsBlockCommands = true;
+	pCurrentUserWidget->EventNoticeRoundIsDraw();
+}
+
+void ABJ_Pawn::RoundIsWin()
+{
+	bIsBlockCommands = true;
+	pCurrentUserWidget->EventNoticeRoundIsWin();
+}
+
+void ABJ_Pawn::RoundIsLose()
+{
+	bIsBlockCommands = true;
+	pCurrentUserWidget->EventNoticeRoundIsLose();
+}
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Actions of Croupier   --- */
 
 void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
 {
@@ -316,8 +373,6 @@ void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
 	CroupierCardsData.Add(lCard->GetCardRank());
 
 	MoveAllCards(CroupierCardsLocationPoint, CroupierCards);
-	UpdateCroupiersScore();
-	CheckRoundStatus();
 }
 
 void ABJ_Pawn::CardToPlayer()
@@ -329,37 +384,52 @@ void ABJ_Pawn::CardToPlayer()
 	PlayerCardsData.Add(lCard->GetCardRank());
 
 	MoveAllCards(PlayerCardsLocationPoint, PlayerCards);
-	UpdatePlayersScore();
-	CheckRoundStatus();
 }
 
 void ABJ_Pawn::UpdateCroupiersScore()
 {
 	// Счёт Крупье: расчёт и обновление данных
 	CroupiersScore = SummarizingCards(CroupierCardsData);
-	pCurrentUserWidget->UpdateCroupiersScore(CroupiersScore);
+	pCurrentUserWidget->EventUpdateCroupiersScore(CroupiersScore);
 }
 
 void ABJ_Pawn::UpdatePlayersScore()
 {
 	// Счёт Игрока: расчёт и обновление данных
 	PlayersScore = SummarizingCards(PlayerCardsData);
-	pCurrentUserWidget->UpdatePlayersScore(PlayersScore);
+	pCurrentUserWidget->EventUpdatePlayersScore(PlayersScore);
 }
 
 void ABJ_Pawn::CheckRoundStatus()
 {
-	if (CroupiersScore == PlayersScore && CroupiersScore == 21) // Проверка "Ничья"
+	// PS: В первую очередь проверяем "Ничью" при 21, так как могут сработать другие варианты
+	if (CroupiersScore == PlayersScore && CroupiersScore == 21) // Проверка на "Ничью" при 21 (найменее вероятно)
 	{
-		pCurrentUserWidget->RoundIsDraw();
+		RoundIsDraw();
 	}
-	else if (PlayersScore == 21 || CroupiersScore > 21) // Проверка "Победа"
+	else if (PlayersScore > 21 || CroupiersScore == 21) // Проверка на "Поражение" (найболее вероятно)
 	{
-		pCurrentUserWidget->RoundIsWin();
+		RoundIsLose();
 	}
-	else if (CroupiersScore == 21 || PlayersScore > 21) // Проверка "Поражение"
+	else if (CroupiersScore > 21 || PlayersScore == 21) // Проверка на "Победу"
 	{
-		pCurrentUserWidget->RoundIsLose();
+		RoundIsWin();
+	}
+}
+
+void ABJ_Pawn::FinallyCheckRoundStatus()
+{
+	if (CroupiersScore > PlayersScore) // Проверка на "Поражение" (найболее вероятно)
+	{
+		RoundIsLose();
+	}
+	else if (PlayersScore > CroupiersScore) // Проверка на "Победу"
+	{
+		RoundIsWin();
+	}
+	else if (CroupiersScore == PlayersScore) // Проверка на "Ничью" (найменее вероятно)
+	{
+		RoundIsDraw();
 	}
 }
 
