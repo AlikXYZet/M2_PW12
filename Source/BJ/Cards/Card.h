@@ -6,6 +6,7 @@
 
 // UE:
 #include "Components/TextRenderComponent.h"
+#include "Components/DecalComponent.h"
 
 // Interaction:
 #include "CardStruct.h"
@@ -44,43 +45,66 @@ public:
 
 
 
+	/* ---   Components   --- */
+
+	/** Меш визуализации карты */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* CardMesh = nullptr;
+
+	/** Текст номинала карты */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UTextRenderComponent* RankText = nullptr;
+
+	/** Декаль масти карты */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	class UDecalComponent* SuitDecal = nullptr;
+	//-------------------------------------------
+
+
+
 	/* ---   Visualization   --- */
 
-	// Меш визуализации карты
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* CardMesh = nullptr;
-	// Текст номинала карты
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UTextRenderComponent* RankText = nullptr;
-	// Текст масти карты
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UTextRenderComponent* SuitText = nullptr;
+	/** Материал для масти Червей */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
+	class UMaterialInterface* HeartsMaterial = nullptr;
+
+	/** Материал для масти Бубны */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
+	class UMaterialInterface* DiamondsMaterial = nullptr;
+
+	/** Материал для масти Трефы */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
+	class UMaterialInterface* ClubsMaterial = nullptr;
+
+	/** Материал для масти Пики */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
+	class UMaterialInterface* SpadesMaterial = nullptr;
 	//-------------------------------------------
 
 
 
 	/* ---   CardData   --- */
 
-	// Записать данные карты
+	/** Записать данные карты
+	* @param	iData - Вводимые новые данные карты
+	*/
 	void SetCardData(const FCardData& iData);
-	// Получить данные карты
+
+	/** Получить данные карты */
 	ERank GetCardRank();
 	//-------------------------------------------
 
 
 
-	/* ---   Movement   --- */
+	/* ---   Card Movement   --- */
 
-	// Скорость перемещения
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+	/** Скорость перемещения */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Playing Card|Movement")
 	float MovementSpeed = 5.0f;
 
-	// Допуск отклонения
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+	/** Допуск отклонения */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Playing Card|Movement")
 	float DeviationTolerance = 0.1f;
-
-	// Флаг контроля перемещения
-	bool bIsMovingToNewLocation = false;
 
 	/**
 	* Плавно переместить карту в указанную локацию
@@ -94,14 +118,19 @@ public:
 private:
 
 	/* ---   CardData   --- */
-	// Данные карты (номинал и масть)
+
+	/** Данные карты (номинал и масть) */
 	FCardData CardData;
 	//-------------------------------------------
 
 
 
 	/* ---   Movement   --- */
-	// Новая локация к которой стремится данная карта
+
+	/** Флаг контроля перемещения */
+	bool bIsMovingToNewLocation = false;
+
+	/** Новая локация к которой стремится данная карта */
 	FVector NewLocation;
 	//-------------------------------------------
 };

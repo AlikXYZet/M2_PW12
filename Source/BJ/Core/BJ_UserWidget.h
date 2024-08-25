@@ -54,7 +54,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Table-Pawn")
 	void CommandToSurrender();
 
-	/** Запустить новый раунд */
+	/** Запустить новый раунд
+	*
+	* @warning	Может сразу вызвать одну из " Event Notice Round Is *** "
+	*/
 	UFUNCTION(BlueprintCallable, Category = "Table-Pawn")
 	void CommandToNextRound();
 
@@ -65,7 +68,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Update Croupiers Score"))
 	void EventUpdateCroupiersScore(const uint8& Score);
 
-	/** 
+	/**
 	* Event обновления очков Игрока
 	* @param Score - Текущее количество очков
 	*/
