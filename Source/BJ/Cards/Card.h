@@ -4,15 +4,20 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-// UE:
-#include "Components/TextRenderComponent.h"
-#include "Components/DecalComponent.h"
-
 // Interaction:
 #include "CardStruct.h"
 
 // Generated:
 #include "Card.generated.h"
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Pre-declaration of classes   --- */
+
+class UTextRenderComponent;
+class UDecalComponent;
+//--------------------------------------------------------------------------------------
 
 
 
@@ -49,15 +54,15 @@ public:
 
 	/** Меш визуализации карты */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* CardMesh = nullptr;
+	UStaticMeshComponent* CardMesh = nullptr;
 
 	/** Текст номинала карты */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	class UTextRenderComponent* RankText = nullptr;
+	UTextRenderComponent* RankText = nullptr;
 
 	/** Декаль масти карты */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
-	class UDecalComponent* SuitDecal = nullptr;
+	UDecalComponent* SuitDecal = nullptr;
 	//-------------------------------------------
 
 
@@ -66,19 +71,19 @@ public:
 
 	/** Материал для масти Червей */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
-	class UMaterialInterface* HeartsMaterial = nullptr;
+	UMaterialInterface* HeartsMaterial = nullptr;
 
 	/** Материал для масти Бубны */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
-	class UMaterialInterface* DiamondsMaterial = nullptr;
+	UMaterialInterface* DiamondsMaterial = nullptr;
 
 	/** Материал для масти Трефы */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
-	class UMaterialInterface* ClubsMaterial = nullptr;
+	UMaterialInterface* ClubsMaterial = nullptr;
 
 	/** Материал для масти Пики */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Playing Card|Suit Materials")
-	class UMaterialInterface* SpadesMaterial = nullptr;
+	UMaterialInterface* SpadesMaterial = nullptr;
 	//-------------------------------------------
 
 
@@ -91,7 +96,7 @@ public:
 	void SetCardData(const FCardData& iData);
 
 	/** Получить данные карты */
-	ERank GetCardRank();
+	ERank GetCardRank() const;
 	//-------------------------------------------
 
 

@@ -4,20 +4,21 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 
-// UE:
-#include "Camera/CameraComponent.h"
-
 // Interaction:
 #include "BJ/Cards/CardStruct.h"
 
 // Generated:
 #include "BJ_Pawn.generated.h"
+//--------------------------------------------------------------------------------------
 
 
 
 /* ---   Pre-declaration of classes   --- */
+
+class UCameraComponent;
 class ACard;
 class ADeck;
+class UBJ_UserWidget;
 //--------------------------------------------------------------------------------------
 
 
@@ -47,7 +48,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Вызывается для привязки функциональности к входным данным
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	/**
 	* Вызывается, когда эта пешка захвачена. Вызывается только на сервере (или в автономном режиме)
@@ -64,20 +65,20 @@ public:
 	/* ---   Visualization   --- */
 
 	/** Меш визуализации стола */
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* TableMesh = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* TableMesh = nullptr;
 
 	/** Точка местоположения Колоды */
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USceneComponent* DeckLocationPoint = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* DeckLocationPoint = nullptr;
 
 	/** Точка местоположения карт Крупье */
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USceneComponent* CroupierCardsLocationPoint = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* CroupierCardsLocationPoint = nullptr;
 
 	/** Точка местоположения карт Игрока */
-	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USceneComponent* PlayerCardsLocationPoint = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* PlayerCardsLocationPoint = nullptr;
 	//-------------------------------------------
 
 
@@ -85,8 +86,8 @@ public:
 	/* ---   Camera   --- */
 
 	/** Камера Игрока */
-	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* Camera = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* Camera = nullptr;
 	//-------------------------------------------
 
 
@@ -99,7 +100,7 @@ public:
 
 	// Трансформ карт
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deck of Cards")
-	FTransform CardsTransform;
+	FVector CardsScale = FVector(0.1f);
 
 	// Экземпляр колоды
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, NoClear, Category = "Deck of Cards")
@@ -107,7 +108,7 @@ public:
 
 	// Трансформ карт
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deck of Cards")
-	FTransform DeckTransform;
+	FVector DeckScale = FVector(0.1f);
 	//-------------------------------------------
 
 
@@ -136,7 +137,7 @@ public:
 	* (необходим для прямой передачи данных от Стола к Виджету)
 	* @param iCurrentUserWidget - Указатель на текущий Widget стола
 	*/
-	void InitTableForWidget(class UBJ_UserWidget* iCurrentUserWidget);
+	void InitTableForWidget(UBJ_UserWidget* iCurrentUserWidget);
 	//-------------------------------------------
 
 
@@ -147,11 +148,6 @@ private:
 
 	/** Указатель на колоду карт */
 	ADeck* pDeck;
-
-	/** Номиналы карт крупье */
-	TArray<ERank> CroupierCardsData;
-	/** Номиналы карт игрока */
-	TArray<ERank> PlayerCardsData;
 
 	/** Разыгранные карты Крупье за текущий раунд */
 	TArray<ACard*> CroupierCards;
@@ -175,7 +171,7 @@ private:
 	* @param	iSetTransform - Трасформация обьекта относительно " iPoint "
 	* @return	Расчитанная Трансформация
 	*/
-	FTransform ConversionTransform(const USceneComponent* iPoint, const FTransform& iSetTransform);
+	FTransform ConversionTransform(const USceneComponent* iPoint, const FVector& iSetScale);
 
 	/** Создание и перемещение новой Карты
 	* @param	iCards - Массив карт "Руки" для добавления в него новой Карты
@@ -189,7 +185,7 @@ private:
 	/* ---   Interaction from Widget   --- */
 
 	/** Указатель на текущий виджет */
-	class UBJ_UserWidget* pCurrentUserWidget = nullptr;
+	UBJ_UserWidget* pCurrentUserWidget = nullptr;
 
 	/** Флаг контроля блокировки команд */
 	bool bIsBlockCommands = true;
@@ -224,10 +220,8 @@ private:
 	/** Карты Крупье собраны */
 	bool bCroupierCardsIsCollected = false;
 
-	/** Отправить карту Крупье
-	* @param	ibIsTurned - Перевернуть ли карту (PS: Пока не реализовано)
-	*/
-	void CardToCroupier(const bool& ibIsTurned = false);
+	/** Отправить карту Крупье */
+	void CardToCroupier();
 
 	/** Отправить карту Игроку */
 	void CardToPlayer();
@@ -245,9 +239,9 @@ private:
 	void FinallyCheckRoundStatus();
 
 	/** Суммирование номинала карт (расчёт количества очков "Руки")
-	* @param	iCardsData - Массив карт "Руки", которую требуется расчитать
+	* @param	iCards - Массив указателей на карты "Руки", которую требуется расчитать
 	* @return	Количество очков данной "Руки"
 	*/
-	uint8 SummarizingCards(const TArray<ERank>& iCardsData) const;
+	uint8 SummarizingCards(const TArray<ACard*>& ipCards) const;
 	//-------------------------------------------
 };

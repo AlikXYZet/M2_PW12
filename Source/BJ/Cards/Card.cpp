@@ -3,6 +3,11 @@
 // Base:
 #include "Card.h"
 
+// UE:
+#include "Components/TextRenderComponent.h"
+#include "Components/DecalComponent.h"
+//--------------------------------------------------------------------------------------
+
 
 
 /* ---   Constructors   --- */
@@ -128,7 +133,7 @@ void ACard::SetCardData(const FCardData& iData)
 	}
 }
 
-ERank ACard::GetCardRank()
+ERank ACard::GetCardRank() const
 {
 	return CardData.Rank;
 }

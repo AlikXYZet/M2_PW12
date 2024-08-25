@@ -1,7 +1,11 @@
 ﻿#pragma once
 
+// Base:
 #include "CoreMinimal.h"
+
+// Generated:
 #include "CardStruct.generated.h"
+//--------------------------------------------------------------------------------------
 
 
 

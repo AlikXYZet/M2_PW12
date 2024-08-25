@@ -6,6 +6,14 @@
 
 // Generated:
 #include "BJ_UserWidget.generated.h"
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Pre-declaration of classes   --- */
+
+class ABJ_Pawn;
+//--------------------------------------------------------------------------------------
 
 
 
@@ -96,6 +104,6 @@ private:
 
 	/** Текущий стол (пешка) */
 	UPROPERTY(BlueprintReadOnly, Category = "Table-Pawn", meta = (ExposeOnSpawn = "true", AllowPrivateAccess = "true"))
-	class ABJ_Pawn* CurrentTable;
+	ABJ_Pawn* CurrentTable;
 	//-------------------------------------------
 };

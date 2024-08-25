@@ -3,11 +3,15 @@
 // Base:
 #include "BJ_Pawn.h"
 
+// UE:
+#include "Camera/CameraComponent.h"
+
 // Interaction:
 #include "BJ_PlayerController.h"
 #include "BJ/Cards/Deck.h"
 #include "BJ/Cards/Card.h"
 #include "BJ_UserWidget.h"
+//--------------------------------------------------------------------------------------
 
 
 
@@ -55,16 +59,6 @@ ABJ_Pawn::ABJ_Pawn()
 	Camera->SetRelativeLocation(FVector(60.f, 0.f, 120.f));
 	Camera->SetRelativeRotation(FRotator(-60.f, 180.f, 0.f));
 	//-------------------------------------------
-
-
-	/* ---   Cards and Deck   --- */
-
-	FTransform lDefaultTransform;
-	lDefaultTransform.SetScale3D(FVector(0.1f));
-
-	CardsTransform = lDefaultTransform;
-	DeckTransform = lDefaultTransform;
-	//-------------------------------------------
 }
 //--------------------------------------------------------------------------------------
 
@@ -82,7 +76,7 @@ void ABJ_Pawn::BeginPlay()
 	{
 		pDeck = GetWorld()->SpawnActor<ADeck>(
 			DeckType.Get(),
-			ConversionTransform(DeckLocationPoint, DeckTransform));
+			ConversionTransform(DeckLocationPoint, DeckScale));
 	}
 	else
 	{
@@ -151,10 +145,6 @@ void ABJ_Pawn::ClearOfCards()
 	}
 	PlayerCards.Empty();
 
-	// Очистка массивов данных о номиналах карт "Руки"
-	CroupierCardsData.Empty();
-	PlayerCardsData.Empty();
-
 	// Сброс флагов раунда
 	bCroupierCardsIsCollected = false;
 	bIsBlockCommands = false;
@@ -200,11 +190,13 @@ void ABJ_Pawn::MoveAllCards(const USceneComponent* iPoint, TArray<ACard*>& iCard
 	}
 }
 
-FTransform ABJ_Pawn::ConversionTransform(const USceneComponent* iPoint, const FTransform& iSetTransform)
+FTransform ABJ_Pawn::ConversionTransform(const USceneComponent* iPoint, const FVector& iSetScale)
 {
-	FTransform lResult = iPoint->GetComponentTransform() + iSetTransform;
+	FTransform lResult = iPoint->GetComponentTransform();
 
-	lResult.SetScale3D(iSetTransform.GetScale3D());
+	lResult.SetScale3D(iSetScale);
+
+	//UE_LOG(LogTemp, Warning, TEXT("ABJ_Pawn::ConversionTransform : %s"), *lResult.ToString());
 
 	return lResult;
 }
@@ -214,7 +206,7 @@ ACard* ABJ_Pawn::CreateNewCard(TArray<ACard*>& iCards)
 	// Создать "взятую" карту и переместить её к владельцу
 	ACard* pNewCard = GetWorld()->SpawnActor<ACard>(
 		CardsType.Get(),
-		ConversionTransform(DeckLocationPoint, CardsTransform));
+		ConversionTransform(DeckLocationPoint, DeckScale));
 
 	pNewCard->SetCardData(pDeck->TakeUpperCard());
 
@@ -364,13 +356,10 @@ void ABJ_Pawn::RoundIsLose()
 
 /* ---   Actions of Croupier   --- */
 
-void ABJ_Pawn::CardToCroupier(const bool& ibIsTurned)
+void ABJ_Pawn::CardToCroupier()
 {
 	// Запомнить новую карту и передать её Крупье
 	ACard* lCard = CreateNewCard(CroupierCards);
-
-	// Отдельно запомнить необходимые данные карт Крупье
-	CroupierCardsData.Add(lCard->GetCardRank());
 
 	MoveAllCards(CroupierCardsLocationPoint, CroupierCards);
 }
@@ -380,23 +369,20 @@ void ABJ_Pawn::CardToPlayer()
 	// Запомнить новую карту и передать её Игроку
 	ACard* lCard = CreateNewCard(PlayerCards);
 
-	// Отдельно запомнить необходимые данные карт Игрока
-	PlayerCardsData.Add(lCard->GetCardRank());
-
 	MoveAllCards(PlayerCardsLocationPoint, PlayerCards);
 }
 
 void ABJ_Pawn::UpdateCroupiersScore()
 {
 	// Счёт Крупье: расчёт и обновление данных
-	CroupiersScore = SummarizingCards(CroupierCardsData);
+	CroupiersScore = SummarizingCards(CroupierCards);
 	pCurrentUserWidget->EventUpdateCroupiersScore(CroupiersScore);
 }
 
 void ABJ_Pawn::UpdatePlayersScore()
 {
 	// Счёт Игрока: расчёт и обновление данных
-	PlayersScore = SummarizingCards(PlayerCardsData);
+	PlayersScore = SummarizingCards(PlayerCards);
 	pCurrentUserWidget->EventUpdatePlayersScore(PlayersScore);
 }
 
@@ -433,28 +419,33 @@ void ABJ_Pawn::FinallyCheckRoundStatus()
 	}
 }
 
-uint8 ABJ_Pawn::SummarizingCards(const TArray<ERank>& iCardsData) const
+uint8 ABJ_Pawn::SummarizingCards(const TArray<ACard*>& ipCards) const
 {
+	uint8 lResult = 0;
+
 	// Счётчик количества Тузов
 	uint8 lNumAces = 0;
 
-	uint8 lResult = 0;
+	// Счётчик количества Тузов
+	ERank lCardRank;
 
 	// Получение максимального Счёта
-	for (const ERank& Data : iCardsData)
+	for (const ACard* Data : ipCards)
 	{
-		if (uint8(Data) > 10) // Проверка "Картинки"
+		lCardRank = Data->GetCardRank();
+
+		if (uint8(lCardRank) > 10) // Проверка "Картинки"
 		{
 			lResult += 10;
 		}
-		else if (Data == ERank::Ace) // Проверка "Туза"
+		else if (lCardRank == ERank::Ace) // Проверка "Туза"
 		{
 			lResult += 11;
 			++lNumAces;
 		}
 		else
 		{
-			lResult += uint8(Data);
+			lResult += uint8(lCardRank);
 		}
 	}
 

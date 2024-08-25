@@ -4,14 +4,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-// UE:
-#include "Components/TextRenderComponent.h"
-
 // Interaction:
-#include "BJ/Cards/CardStruct.h"
+#include "CardStruct.h"
 
 // Generated:
 #include "Deck.generated.h"
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Pre-declaration of classes   --- */
+
+class UTextRenderComponent;
 //--------------------------------------------------------------------------------------
 
 
@@ -28,6 +32,7 @@ public:
 	// Sets default values for this actor's properties
 	ADeck();
 	//-------------------------------------------
+
 
 
 	/* ---   Base   --- */
@@ -48,10 +53,10 @@ public:
 
 	// Меш визуализации колоды
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* DeckMesh = nullptr;
+	UStaticMeshComponent* DeckMesh = nullptr;
 	// Текст количества карт
 	UPROPERTY(Category = Components, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UTextRenderComponent* CardsNumberText = nullptr;
+	UTextRenderComponent* CardsNumberText = nullptr;
 	//-------------------------------------------
 
 

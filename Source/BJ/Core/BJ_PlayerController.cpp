@@ -3,6 +3,10 @@
 // Base:
 #include "BJ_PlayerController.h"
 
+// Interaction:
+#include "BJ_Pawn.h"
+//--------------------------------------------------------------------------------------
+
 
 
 /* ---   Base   --- */

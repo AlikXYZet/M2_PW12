@@ -6,6 +6,16 @@
 
 // Generated:
 #include "BJ_PlayerController.generated.h"
+//--------------------------------------------------------------------------------------
+
+
+
+/* ---   Pre-declaration of classes   --- */
+
+class ABJ_Pawn;
+//--------------------------------------------------------------------------------------
+
+
 
 /**
  * 
@@ -33,6 +43,6 @@ public:
 	* @param CurrentTable - Указатель на текущий Cтол для взаимодействия в Widget
 	*/
 	UFUNCTION(BlueprintImplementableEvent, Category = "Table-Pawn", meta = (DisplayName = "Init Widget For Table"))
-	void EventInitWidgetForTable(class ABJ_Pawn* CurrentTable);
+	void EventInitWidgetForTable(ABJ_Pawn* CurrentTable);
 	//-------------------------------------------
 };
