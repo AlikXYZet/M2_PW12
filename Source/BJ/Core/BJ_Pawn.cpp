@@ -319,7 +319,7 @@ void ABJ_Pawn::CroupierTurn()
 	if (!bIsBlockCommands)
 	{
 		// Собирать карты, пока очков менее 16
-		if (CroupiersScore < 16)
+		if (CroupiersScore <= 16)
 		{
 			CardToCroupier();
 			UpdateCroupiersScore();
