@@ -117,7 +117,9 @@ void ADeck::UpdateData()
 
 void ADeck::Shuffle()
 {
-	for (int i = AllCardsType.Num() - 1; i > 0; --i)
+	// При количестве карт меньше 2, "int32 i" при инициализации получает отрицательное значение,
+	// а значит цикл не запускается
+	for (int32 i = AllCardsType.Num() - 1; i > 0; --i)
 	{
 		// Поменять местами i и random [0, i-1]
 		AllCardsType.Swap(i, GetRandom(0, i - 1));
