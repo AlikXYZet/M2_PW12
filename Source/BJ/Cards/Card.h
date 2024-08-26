@@ -95,7 +95,7 @@ public:
 	*/
 	void SetCardData(const FCardData& iData);
 
-	/** Получить данные карты */
+	/** Получить номинал карты */
 	ERank GetCardRank() const;
 	//-------------------------------------------
 

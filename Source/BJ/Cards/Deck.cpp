@@ -86,20 +86,6 @@ void ADeck::Reset()
 	Shuffle();
 }
 
-void ADeck::UpdateData()
-{
-	CardsNumberText->SetText(FString::Printf(TEXT("%d"), GetNumOfCards()));
-}
-
-void ADeck::Shuffle()
-{
-	for (int i = AllCardsType.Num() - 1; i > 0; --i)
-	{
-		// Поменять местами i и random [0, i-1]
-		AllCardsType.Swap(i, GetRandom(0, i - 1));
-	}
-}
-
 FCardData ADeck::TakeUpperCard()
 {
 	FCardData lResult;
@@ -122,5 +108,19 @@ FCardData ADeck::TakeUpperCard()
 int32 ADeck::GetNumOfCards() const
 {
 	return AllCardsType.Num();
+}
+
+void ADeck::UpdateData()
+{
+	CardsNumberText->SetText(FString::Printf(TEXT("%d"), GetNumOfCards()));
+}
+
+void ADeck::Shuffle()
+{
+	for (int i = AllCardsType.Num() - 1; i > 0; --i)
+	{
+		// Поменять местами i и random [0, i-1]
+		AllCardsType.Swap(i, GetRandom(0, i - 1));
+	}
 }
 //--------------------------------------------------------------------------------------
